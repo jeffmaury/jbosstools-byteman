@@ -1,0 +1,8 @@
+RULE test caller match first caller with class and package
+CLASS TestCallerMatches
+METHOD triggerMethod21()
+HELPER org.jboss.byteman.tests.helpers.Default
+BIND test : TestCallerMatches = $0
+IF callerMatches("org\.jboss\.byteman\.tests\.helpertests\.TestCallerMatches\.triggerMethod2", true, true)
+DO $local2 = - $local2;
+ENDRULE

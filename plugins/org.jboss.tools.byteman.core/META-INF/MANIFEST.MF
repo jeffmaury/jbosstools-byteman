@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.jboss.tools.byteman.core;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Name: %Bundle-Name
+Bundle-Vendor: %Bundle-Vendor
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: org.jboss.tools.byteman.core,
+ org.jboss.tools.byteman.core.parser;x-friends:="org.jboss.tools.byteman.core.test",
+ org.jboss.tools.byteman.core.parser.validator
+Bundle-ClassPath: lib/byteman-3.0.6.jar,
+ .
+Require-Bundle: org.eclipse.core.resources,
+ org.apache.commons.lang,
+ org.eclipse.osgi,
+ org.eclipse.core.runtime

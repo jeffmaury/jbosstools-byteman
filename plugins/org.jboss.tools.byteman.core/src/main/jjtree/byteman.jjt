@@ -1,0 +1,419 @@
+options {
+  MULTI = true;
+  VISITOR = true;
+  STATIC = false;
+  JAVA_UNICODE_ESCAPE = true;
+  UNICODE_INPUT = true;
+  TRACK_TOKENS = true;
+  COMMON_TOKEN_ACTION = false;
+}
+
+// ............................................................................................. //
+
+PARSER_BEGIN(BytemanPartialParser)
+
+package org.jboss.tools.byteman.core.parser;
+
+
+public class BytemanPartialParser {
+
+}
+
+PARSER_END(BytemanPartialParser)
+
+// ............................................................................................. //
+
+// White space
+SKIP :
+{
+  " "
+  | "\t"
+  | "\r"
+  | "\f"
+  | "\n"
+  | "\r\n"
+}
+
+TOKEN :
+{
+  < BIND: ("BIND" | "bind")>
+  |
+  < NOTHING: ("NOTHING" | "nothing") >
+  |
+  < SEMICOLON: ";" >
+  |
+  < ASSIGN : "=" >
+  |
+  < COLON : ":" >
+  |
+  < PLUS : "+" >
+  |
+  < MINUS : "-" >
+  |
+  < TIMES : "*" >
+  |
+  < DIV : "/" >
+  |
+  < MOD: "%" >
+  |
+  < BAND : "&" >
+  |
+  < BOR : "|" >
+  |
+  < BNOT : "~" >
+  |
+  < BXOR : "^" >
+  |
+  < URSH : ">>>" >
+  |
+  < RSH : ">>" >
+  | 
+  < LSH : "<<" >
+  |
+  < OR : ("OR" | "or" | "||") >
+  |
+  < AND : ("AND" | "and" | "&&") >
+  |
+  < NOT : ("NOT" | "not" | "!") >
+  |
+  < LT : "<" >
+  |
+  < LE : "<=" >
+  |
+  < GT : ">" >
+  |
+  < GE : ">=" >
+  |
+  < EQ : "==" >
+  |
+  < NE : "!=" >
+  |
+  < LSQUARE : "[" >
+  |
+  < RSQUARE : "]" >
+  |
+  < LPAREN : "(" >
+  |
+  < RPAREN : ")" >
+  |
+  < LBRACE : "{" >
+  |
+  < RBRACE : "}" >
+  |
+  < COMMA : "," >
+  |
+  < DOT : "." >
+  |
+  < DOLLAR : "$" >
+  |
+  < QUESTION : "?" >
+  |
+  < NEW : ("new" | "NEW") >
+  |
+  < BOOLEAN : ("TRUE" | "true" | "FALSE" | "false") >
+  |
+  < IF : ("IF" | "if") >
+  |
+  < DO : ("DO" | "do") >
+  |
+  < KEYWORD_THROW : ("THROW" | "throw") >
+  |
+  < KEYWORD_RETURN : ("RETURN" | "return") >
+}
+
+TOKEN :
+{
+  < IDENTIFIER: (["A"-"Z"]|["a"-"z"]|"_") (["A"-"Z"]|["a"-"z"]|["0"-"9"]|"$"|"_")* >
+  |
+  < DOLLARINDEX: "$" (["0"-"9"])+ >
+  |
+  < INTVAL : (["0"-"9"])+ (<INTTYPESUFFIX>)?
+    | "0x" (["0"-"9"]|["A"-"F"]|["a"-"f"])+ (<INTTYPESUFFIX>)?
+    | "0b" (["0"-"1"])+ (<INTTYPESUFFIX>)? >
+  |
+  < FLOATVAL: (["0"-"9"])+ "." (["0"-"9"])+ (<EXPONENT>)? (<FLOATTYPESUFFIX>)?
+    |   "." (["0"-"9"])+ (<EXPONENT>)? (<FLOATTYPESUFFIX>)?
+    |   (["0"-"9"])+ <EXPONENT> (<FLOATTYPESUFFIX>)?
+    |   (["0"-"9"])+ <FLOATTYPESUFFIX> >
+  |
+  < STRING :(("\"" ( "\\" ("."|"b"|"t"|"n"|"f"|"r"|"\""|"'"|"\\") | (~["\\","\""]) )* "\"") |
+     ("'" ( "\\" ("b"|"t"|"n"|"f"|"r"|"\""|"'"|"\\") | (~["\\","'"]) )* "'")) >
+}
+
+MORE :
+{
+    < INTTYPESUFFIX : ("L"|"l") >
+    |
+    < EXPONENT: ("e"|"E") ("+"|"-")? (["0"-"9"])+  >
+    |
+    < FLOATTYPESUFFIX : ("f"|"F"|"d"|"D") >
+}
+  
+void Body() : {}
+{
+     (Bind())?
+     Condition()
+     Actions()
+}
+
+void RelaxedBody() : {}
+{
+    (Bind() | Condition() | Actions())*
+}
+
+void Bind() : {}
+{
+<BIND> (<NOTHING> | Bindings())
+}
+
+void Bindings() : {}
+{
+ Binding()
+ (<SEMICOLON> (Binding())?)*
+}
+
+void Binding() : {}
+{
+     BindVariable()      // assignment is optional but only if we have a type
+     ((<ASSIGN> BindingExpression()) |
+      (<COLON> TypeName()) (<ASSIGN> BindingExpression())?
+     )
+}
+
+void BindingExpression() : {}
+{
+    Expression() |
+    ArrayInit()
+}
+
+void ArrayInit() : {}
+{
+    LOOKAHEAD(2) (<LBRACE> <RBRACE>) |
+    LOOKAHEAD(2) (<LBRACE> ExpressionList() <RBRACE>) |
+    (<LBRACE> ArrayInitList() <RBRACE>)
+}
+
+void ArrayInitList() : {}
+{
+    ArrayInit() (<COMMA> ArrayInit())*
+}
+
+
+void Condition() : {}
+{
+     <IF> Expression()
+}
+
+void Actions() : {}
+{
+     <DO> (ActionList() | <NOTHING>)
+}
+
+
+void ActionList() : {}
+{
+    Action()
+    (<SEMICOLON> (Action())?)*
+}
+
+void Action() : {}
+{
+    Expression() | ReturnExpr() | ThrowExpr()
+}
+
+
+void BindVariable() : {}
+{
+       <IDENTIFIER>
+}
+
+void Expression() : {}
+{
+    AssignmentExpr()
+}
+
+void ExpressionList() : {}
+{
+    Expression() (<COMMA> Expression())*
+}
+
+void ReturnExpr() : {}
+{
+    <KEYWORD_RETURN> (Expression())?
+}
+
+void ThrowExpr() : {}
+{
+    <KEYWORD_THROW> Expression()
+}
+
+
+void AssignmentExpr() : {}
+{
+    OperatorExpr() (<ASSIGN> AssignmentExpr())?
+}
+
+void OperatorExpr() : {}
+{
+    OperatorExpr1() ( <QUESTION> OperatorExpr() <COLON> OperatorExpr())?
+}
+
+void OperatorExpr1() : {}
+{
+   PlusMinusOperand() ((<PLUS> | <MINUS>) PlusMinusOperand())*
+}
+
+void PlusMinusOperand() : {}
+{
+   TimesDivOperand() ((<TIMES> | <DIV> | <MOD>) TimesDivOperand())*
+}
+
+void TimesDivOperand() : {}
+{
+   BitwiseOperand() ((<BAND> | <BOR> | <BXOR> | <RSH> | <URSH> | <LSH>) BitwiseOperand())* |
+   (<BNOT> BitwiseOperand())
+}
+
+void BitwiseOperand() : {}
+{
+    (LogicalOperand() | NotOperand()) ((<OR> | <AND>) (NotOperand() | LogicalOperand()))*
+} 
+
+void NotOperand() : {}
+{
+    (<NOT>) LogicalOperand()
+}
+
+void LogicalOperand() : {}
+{
+    ComparisonOperand() ((<EQ> | <GT> | <GE> | <LE> | <LT> | <NE>) ComparisonOperand())*
+}
+ 
+void ComparisonOperand() : {}
+{
+    AccessExpr()
+}
+
+void AccessExpr() : {}
+{
+    AccessBaseExpr() ((<LSQUARE> Expression() <RSQUARE>) |
+                    (<DOT> <IDENTIFIER> (CallArguments())?))*
+}
+
+void AccessBaseExpr() : {}
+{
+    LOOKAHEAD(2) BuiltinExpr() |
+    LOOKAHEAD(2) SimpleExpr()
+}
+
+void BuiltinExpr() : {}
+{
+    <IDENTIFIER> CallArguments()
+}
+
+void SimpleExpr() : {}
+{
+   VariableExpr() |
+   ConstantExpr() |
+   BracketedExpr() |
+   NewExpr()
+}
+
+void NewExpr() : {}
+{
+   <NEW> QualifiedName() 
+   (CallArguments() |
+    NewArraySpec())
+}
+
+void NewArraySpec() : {}
+{
+    ArrayDims() (ArrayInit())?
+}
+
+void ArrayDims() : {}
+{
+    (LOOKAHEAD(2) ArrayDim())+
+}
+
+void ArrayDim() : {}
+{
+    <LSQUARE> (Expression())? <RSQUARE> 
+}
+
+void VariableExpr() : {}
+{
+   SimpleName() |
+   IndexedSpecialVar() |
+   SpecialVar()
+}
+
+void CallArguments() : {}
+{
+     <LPAREN>
+         (Expression()
+            (<COMMA> Expression())*)?
+     <RPAREN>
+}
+
+void TypeName() : {}
+{
+    QualifiedName() (<LSQUARE> <RSQUARE>)*
+}
+
+void QualifiedName() : {}
+{
+     <IDENTIFIER> (<DOT> <IDENTIFIER>)*
+}
+
+void SimpleName() : {}
+{
+   <IDENTIFIER>
+}
+   
+void IndexedSpecialVar() : {}
+{
+   <DOLLARINDEX>
+}
+
+void SpecialVar() : {}
+{
+   ("$#" | "$!" | "$^" | "$@" | "$*" | <DOLLAR> <IDENTIFIER>)
+}
+
+
+void BracketedExpr() : {}
+{
+   <LPAREN> Expression() <RPAREN>
+}
+   
+
+void ConstantExpr() : {}
+{
+   IntConstantExpr() |
+   StringConstantExpr() |
+   BooleanConstantExpr() |
+   FloatConstantExpr()
+}
+
+void IntConstantExpr() : {}
+{
+    <INTVAL>
+}
+
+void StringConstantExpr() : {}
+{
+   <STRING>
+}
+
+void BooleanConstantExpr() : {}
+{
+   <BOOLEAN>
+}
+
+void FloatConstantExpr() : {}
+{
+   <FLOATVAL>
+}
+
+
