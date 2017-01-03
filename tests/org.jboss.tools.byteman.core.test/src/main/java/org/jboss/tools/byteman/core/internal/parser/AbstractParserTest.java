@@ -22,7 +22,7 @@ import org.junit.runners.Parameterized.Parameters;
  *
  */
 @RunWith(Parameterized.class)
-public class AbstractParserTest {
+public abstract class AbstractParserTest {
     
     @Parameters(name="{0}")
     public static Collection<Object[]> parameters() throws IOException {
