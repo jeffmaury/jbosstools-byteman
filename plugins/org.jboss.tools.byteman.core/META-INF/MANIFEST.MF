@@ -6,7 +6,9 @@ Bundle-Name: %Bundle-Name
 Bundle-Vendor: %Bundle-Vendor
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Export-Package: org.jboss.tools.byteman.core,
+Export-Package: org.jboss.byteman.java_cup.runtime,
+ org.jboss.byteman.rule.grammar,
+ org.jboss.tools.byteman.core,
  org.jboss.tools.byteman.core.parser;x-friends:="org.jboss.tools.byteman.core.test",
  org.jboss.tools.byteman.core.parser.validator
 Bundle-ClassPath: lib/byteman-3.0.6.jar,

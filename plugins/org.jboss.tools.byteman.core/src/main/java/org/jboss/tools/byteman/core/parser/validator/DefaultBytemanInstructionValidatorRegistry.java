@@ -30,6 +30,7 @@ public class DefaultBytemanInstructionValidatorRegistry implements BytemanInstru
         validators.put(BytemanInstructionType.HELPER, new BytemanNamedInstructionValidator(Messages.BytemanHelperNoNameErrorMessage));
         validators.put(BytemanInstructionType.METHOD, new BytemanNamedInstructionValidator(Messages.BytemanMethodNoNameErrorMessage));
         validators.put(BytemanInstructionType.IMPORT, new BytemanNamedInstructionValidator(Messages.BytemanImportNoNameErrorMessage));
+        validators.put(BytemanInstructionType.BIND, new BytemanBindInstructionValidator());
     }
     
     @Override

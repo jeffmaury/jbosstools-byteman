@@ -142,14 +142,22 @@ public class RuleScriptParser
     private BytemanBindInstruction merge(BytemanInstruction instruction, RulesScript ruleScripts, BytemanRule rule, BytemanBindInstruction bindInstruction) {
         if (null != rule) {
             if (bindInstruction != null) {
-                rule.addInstruction(bindInstruction);
-                bindInstruction = null;
+                if (instruction.getType() != BytemanInstructionType.COMMENT) {
+                    rule.addInstruction(bindInstruction);
+                    bindInstruction = null;
+                } else {
+                    bindInstruction.add("");
+                }
             }
             rule.addInstruction(instruction);
         } else {
             if (bindInstruction != null) {
-                ruleScripts.addInstruction(bindInstruction);
-                bindInstruction = null;
+                if (instruction.getType() != BytemanInstructionType.COMMENT) {
+                    ruleScripts.addInstruction(bindInstruction);
+                    bindInstruction = null;
+                } else {
+                    bindInstruction.add("");
+                }
             }
             ruleScripts.addInstruction(instruction);
         }
