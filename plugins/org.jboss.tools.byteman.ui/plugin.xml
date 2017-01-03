@@ -12,5 +12,17 @@
             name="Byteman Editor">
       </editor>
    </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabs">
+      <tab
+            class="org.jboss.tools.byteman.ui.tabs.BytemanLaunchConfigurationTab"
+            group="org.eclipse.jdt.debug.ui.launchConfigurationTabGroup.localJavaApplication"
+            id="org.jboss.tools.byteman.ui.tabs.launchJavaApplication"
+            name="Byteman">
+         <placement
+               after="org.eclipse.debug.ui.CommonTab">
+         </placement>
+      </tab>
+   </extension>
 
 </plugin>
