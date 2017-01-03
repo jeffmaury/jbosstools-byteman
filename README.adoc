@@ -1,0 +1,12 @@
+# JBossTools Byteman
+
+image:https://travis-ci.org/jeffmaury/jbosstools-byteman.svg?branch=master["Build Status", link="https://travis-ci.org/jeffmaury/jbosstools-byteman"]
+
+The Byteman Eclipse plugin enables http://byteman.jboss.org[Byteman] in Eclipse's launch configurations, to augment the Hot Code Replacement capabilities of the JVM, without having to restart the Java process. 
+
+It currently supports the following launch configurations:
+
+- [x] Java Applications
+- [x] JBoss Servers (from http://tools.jboss.org/[JBoss Tools])
+- [x] Eclipse Applications
+
