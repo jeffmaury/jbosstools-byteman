@@ -1,0 +1,17 @@
+sudo: false
+language: java
+jdk:
+- oraclejdk8
+cache:
+  directories:
+  - $HOME/.m2
+env:
+  global:
+  - DISPLAY=:99.0
+before_install: 
+install: true
+script:
+- mvn clean verify
+notifications:
+  email:
+  - jeffmaury@jeffmaury.com
